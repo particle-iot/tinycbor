@@ -283,7 +283,7 @@ static inline CborError encode_number_no_update(CborEncoder *encoder, uint64_t u
      * only the necessary bytes.
      * Since it has to be big endian, do it the other way around:
      * write from the end. */
-    uint64_t buf[2];
+    uint64_t buf[2] = {};
     uint8_t *const bufend = (uint8_t *)buf + sizeof(buf);
     uint8_t *bufstart = bufend - 1;
     put64(buf + 1, ui);     /* we probably have a bunch of zeros in the beginning */
@@ -387,7 +387,7 @@ CborError cbor_encode_simple_value(CborEncoder *encoder, uint8_t value)
 CborError cbor_encode_floating_point(CborEncoder *encoder, CborType fpType, const void *value)
 {
     unsigned size;
-    uint8_t buf[1 + sizeof(uint64_t)];
+    uint8_t buf[1 + sizeof(uint64_t)] = {};
     cbor_assert(fpType == CborHalfFloatType || fpType == CborFloatType || fpType == CborDoubleType);
     buf[0] = fpType;
 

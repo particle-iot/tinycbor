@@ -1,17 +1,25 @@
-#include <tinycbor.h>
+/**
+ * CBOR parse sample
+ * 
+ */
+#include "Particle.h"
+#include "tinycbor.h"
+
+SYSTEM_THREAD(ENABLED);
+SYSTEM_MODE(AUTOMATIC);
 
 // Error check and exiting.
 #define CHECK_ERROR(x) {\
   if( (err = TinyCBOR.Parser.get_error()) != 0) {\
     err_line = __LINE__;\
-    goto on_error;\
+    break;\
   }\
 }
 
 #define EXIT_ERROR(e) {\
   if( (err = e) != 0) {\
     err_line = __LINE__;\
-    goto on_error;\
+    break;\
   }\
 }
 
@@ -47,18 +55,18 @@ const uint8_t cbor_encode_sample_output[] =
   0x6c, 0xf5, 0xf6, 0xf7, 0xf8, 0xff
 };
 
-char strbuf[128];
-uint8_t bytebuf[128];
+char strbuf[128] = {};
+uint8_t bytebuf[128] = {};
 
 void setup() {
   Serial.begin(115200);
+  waitFor(Serial.isConnected, 10000);
+
   Serial.println("--- cbor_parse_sample start ---");
   Serial.println();
-}
 
-void loop() {
-  int err;
-  int err_line;
+  int err = 0;
+  int err_line = 0;
 
   TinyCBOR.init();
 
@@ -99,9 +107,9 @@ void loop() {
     case CborArrayType:
     case CborMapType:
       if(TinyCBOR.Parser.is_array() ) {
-        PRINT_AND_CHECK_ERROR("[ # array length=", TinyCBOR.Parser.get_array_length(), "\n");
+        PRINT_AND_CHECK_ERROR("[ # array length=", TinyCBOR.Parser.get_array_length(), "\r\n");
       } else if(TinyCBOR.Parser.is_map()) {
-        PRINT_AND_CHECK_ERROR("{ # map length", TinyCBOR.Parser.get_map_length(), "\n");
+        PRINT_AND_CHECK_ERROR("{ # map length", TinyCBOR.Parser.get_map_length(), "\r\n");
       }
       TinyCBOR.Parser.enter_container();
       break;
@@ -116,10 +124,10 @@ void loop() {
         bool inmap = TinyCBOR.Parser.is_in_map();
         TinyCBOR.Parser.leave_container();
         if(inmap) {
-          PRINT_AND_CHECK_ERROR("}", "", "\n");
+          PRINT_AND_CHECK_ERROR("}", "", "\r\n");
         }
         else {
-          PRINT_AND_CHECK_ERROR("]", "", "\n");
+          PRINT_AND_CHECK_ERROR("]", "", "\r\n");
         }
       }
       else {
@@ -169,7 +177,7 @@ void loop() {
         }
         
         str_len = TinyCBOR.Parser.copy_byte_string(bytebuf, sizeof(bytebuf));
-        PRINT_AND_CHECK_ERROR("", (char*)bytebuf, " # byte string\n");
+        PRINT_AND_CHECK_ERROR("", (char*)bytebuf, " # byte string\r\n");
       }
       break;
 
@@ -181,28 +189,28 @@ void loop() {
       //                 [ --------- unsingned int ------- ]
       //
       if(TinyCBOR.Parser.is_unsigned_integer()) {
-        PRINT_AND_CHECK_ERROR("", CAST_UINT64(TinyCBOR.Parser.get_uint64()), " # unsigned integer\n");
+        PRINT_AND_CHECK_ERROR("", CAST_UINT64(TinyCBOR.Parser.get_uint64()), " # unsigned integer\r\n");
       } else if(TinyCBOR.Parser.is_negative_integer()) {
-        PRINT_AND_CHECK_ERROR("", CAST_INT64(TinyCBOR.Parser.get_int64()), " # negative integer\n");
+        PRINT_AND_CHECK_ERROR("", CAST_INT64(TinyCBOR.Parser.get_int64()), " # negative integer\r\n");
       } else if(TinyCBOR.Parser.is_integer()){
-        PRINT_AND_CHECK_ERROR("", CAST_INT64(TinyCBOR.Parser.get_int64()), " # integer\n");
+        PRINT_AND_CHECK_ERROR("", CAST_INT64(TinyCBOR.Parser.get_int64()), " # integer\r\n");
       }
       break;
 
     case CborSimpleType:
-      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_simple_type(), " # simple type\n");
+      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_simple_type(), " # simple type\r\n");
       break;
 
     case CborBooleanType:
-      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_boolean(), " # bool \n");
+      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_boolean(), " # bool \r\n");
       break;
 
     case CborFloatType:
-      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_float(), " # float\n");
+      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_float(), " # float\r\n");
       break;
 
     case CborDoubleType:
-      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_double(), " # double\n");
+      PRINT_AND_CHECK_ERROR("", TinyCBOR.Parser.get_double(), " # double\r\n");
       break;
 
     case CborHalfFloatType:
@@ -210,12 +218,12 @@ void loop() {
 
     case CborNullType:
       TinyCBOR.Parser.get_null();
-      PRINT_AND_CHECK_ERROR("", "null", " # null \n");
+      PRINT_AND_CHECK_ERROR("", "null", " # null \r\n");
       break;
 
     case CborUndefinedType:
       TinyCBOR.Parser.skip_undefined();
-      PRINT_AND_CHECK_ERROR("", "", " # undefined \n");
+      PRINT_AND_CHECK_ERROR("", "", " # undefined \r\n");
       break;
 
     default:
@@ -223,7 +231,6 @@ void loop() {
     }
   }
 
-on_error:
   // Detect error in CHECK_ERROR macro, jump to here.
   if(err) {
     Serial.print("Error: ");
@@ -236,6 +243,8 @@ on_error:
   }
 
   Serial.println("--- end cbor_parse_sample ---");
-  // Stop this program.
-  while(true);
+}
+
+void loop() {
+
 }

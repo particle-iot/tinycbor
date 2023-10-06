@@ -19,14 +19,14 @@ static CborError print_printf(void *out, const char *format, ...)
   Print* print = reinterpret_cast<Print*>(out);
 #endif
 
-  char buf[256];
+  char buf[256] {};
   int len;
 
   va_list ap;
   va_start(ap, format);
 
   len = vsnprintf(buf, sizeof(buf), format, ap);
-  print->write(buf, len);
+  print->write((uint8_t*)buf, len);
 
   va_end(ap);
 
