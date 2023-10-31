@@ -1,10 +1,8 @@
 #ifndef TINYCBOR_H__
 #define TINYCBOR_H__
 
-#ifdef ARDUINO
-
-#include <cbor.h>
-#include <cborjson.h>
+#include "cbor.h"
+#include "cborjson.h"
 
 #ifndef TINYCBOR_MAXDEPTH
 #define TINYCBOR_MAXDEPTH 4
@@ -199,8 +197,6 @@ struct TinyCBORPlaceHolder {
 };
 
 extern struct TinyCBORPlaceHolder<TINYCBOR_MAXDEPTH> TinyCBOR;
-
-#endif //ARDUINO
 
 #endif //TINYCBOR_H__
 

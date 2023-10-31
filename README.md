@@ -82,5 +82,8 @@ Having problems or have awesome suggestions? Connect with us [here.](https://com
 
 ### Revision History
 
+#### 0.5.4
+* Removed `ARDUINO` define dependencies
+
 #### 0.5.3
 * Initial file commit
